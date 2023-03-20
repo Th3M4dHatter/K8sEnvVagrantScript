@@ -1,0 +1,27 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+VAGRANT_BOX         = "generic/debian11"
+VAGRANT_BOX_VERSION = "4.2.14"
+CPUS_MASTER_NODE    = 4
+MEMORY_MASTER_NODE  = 4096
+
+Vagrant.configure("2") do |config|
+	config.ssh.username = 'vagrant'
+	config.ssh.password = 'vagrant'
+	config.ssh.insert_key = 'true'
+    config.vm.box = VAGRANT_BOX
+    config.vm.hostname = "gitlab.local.com"
+
+    config.vm.network "private_network", ip: "172.15.15.200"
+    config.vm.network :forwarded_port, guest: 80, host: 8080
+
+    config.vm.provider :virtualbox do |v|
+      v.name    = "Gitlab and utility"
+      v.memory  = MEMORY_MASTER_NODE
+      v.cpus    = CPUS_MASTER_NODE
+    end
+
+    config.vm.provision :docker
+    config.vm.provision "shell", path: "install_gitlab.sh"
+end
